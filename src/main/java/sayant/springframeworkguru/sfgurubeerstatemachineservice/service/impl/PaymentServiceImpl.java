@@ -14,6 +14,8 @@ import sayant.springframeworkguru.sfgurubeerstatemachineservice.domain.PaymentSt
 import sayant.springframeworkguru.sfgurubeerstatemachineservice.repository.PaymentRepository;
 import sayant.springframeworkguru.sfgurubeerstatemachineservice.service.PaymentService;
 
+import javax.transaction.Transactional;
+
 /**
  * Created by sayantjm on 24/1/21
  */
@@ -33,31 +35,35 @@ public class PaymentServiceImpl implements PaymentService {
         return paymentRepository.save(payment);
     }
 
+    @Transactional
     @Override
     public StateMachine<PaymentState, PaymentEvent> preAuth(Long paymentId) {
         StateMachine<PaymentState, PaymentEvent> stateMachine = build(paymentId);
 
         sendEvent(paymentId, stateMachine, PaymentEvent.PRE_AUTHORIZE);
 
-        return null;
+        return stateMachine;
     }
 
+    @Transactional
     @Override
     public StateMachine<PaymentState, PaymentEvent> authorizePayment(Long paymentId) {
         StateMachine<PaymentState, PaymentEvent> stateMachine = build(paymentId);
 
-        sendEvent(paymentId, stateMachine, PaymentEvent.AUTH_APPROVED);
+        sendEvent(paymentId, stateMachine, PaymentEvent.AUTHORIZE);
 
-        return null;
+        return stateMachine;
     }
 
+    @Transactional
     @Override
+    @Deprecated
     public StateMachine<PaymentState, PaymentEvent> declineAuth(Long paymentId) {
         StateMachine<PaymentState, PaymentEvent> stateMachine = build(paymentId);
 
         sendEvent(paymentId, stateMachine, PaymentEvent.AUTH_DECLINED);
 
-        return null;
+        return stateMachine;
     }
 
     private void sendEvent(Long paymentId, StateMachine<PaymentState, PaymentEvent> sm, PaymentEvent event) {
